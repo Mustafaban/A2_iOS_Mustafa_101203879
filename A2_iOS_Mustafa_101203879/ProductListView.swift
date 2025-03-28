@@ -15,6 +15,9 @@ struct ProductListView: View {
     var body: some View {
         NavigationStack {
             List {
+                SearchBar(text: $searchText)
+                    .listRowSeparator(.hidden)
+                
                 if filteredProducts.isEmpty {
                     ContentUnavailableView("No Products", systemImage: "tray", description: Text("Your product list is empty"))
                 } else {
@@ -33,3 +36,4 @@ struct ProductListView: View {
         }
     }
 }
+
