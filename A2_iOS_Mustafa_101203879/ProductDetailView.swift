@@ -29,6 +29,12 @@ struct ProductDetailView: View {
                         .font(.subheadline)
                         .foregroundColor(.secondary)
                 }
+                .padding()
+                .background(
+                    RoundedRectangle(cornerRadius: 10)
+                        .fill(Color.white)
+                        .shadow(color: .black.opacity(0.1), radius: 3, x: 0, y: 2)
+                )
                 
                 Spacer()
             }
