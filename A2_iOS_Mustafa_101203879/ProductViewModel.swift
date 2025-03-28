@@ -18,4 +18,29 @@ class ProductViewModel: ObservableObject {
             print("Failed to fetch products: \(error.localizedDescription)")
         }
     }
+
+    func addProduct(name: String, desc: String, price: Double, provider: String) {
+        let newProduct = Product(context: context)
+        newProduct.id = UUID()
+        newProduct.name = name
+        newProduct.desc = desc
+        newProduct.price = price
+        newProduct.provider = provider
+
+        saveContext()
+    }
+
+    func deleteProduct(_ product: Product) {
+        context.delete(product)
+        saveContext()
+    }
+
+    func saveContext() {
+        do {
+            try context.save()
+            fetchProducts()
+        } catch {
+            print("Error saving Core Data: \(error.localizedDescription)")
+        }
+    }
 }
