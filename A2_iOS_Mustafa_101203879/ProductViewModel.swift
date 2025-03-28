@@ -1,46 +1,61 @@
-import Foundation
-import CoreData
+import SwiftUI
 
-class ProductViewModel: ObservableObject {
-    @Published var products: [Product] = []
+struct ProductListView: View {
+    @StateObject var viewModel = ProductViewModel()
     
-    private let context = PersistenceController.shared.container.viewContext
-
-    init() {
-        fetchProducts()
-    }
-
-    func fetchProducts() {
-        let request: NSFetchRequest<Product> = Product.fetchRequest()
-        do {
-            products = try context.fetch(request)
-        } catch {
-            print("Failed to fetch products: \(error.localizedDescription)")
+    @State private var newName = ""
+    @State private var newDesc = ""
+    @State private var newPrice = ""
+    @State private var newProvider = ""
+    
+    var body: some View {
+        NavigationView {
+            VStack {
+                List(viewModel.products, id: \.id) { product in
+                    VStack(alignment: .leading) {
+                        Text(product.name ?? "Unknown")
+                            .font(.headline)
+                        Text(product.desc ?? "No description")
+                        Text("Price: \(product.price, specifier: "%.2f")")
+                        Text("Provider: \(product.provider ?? "Unknown")")
+                    }
+                    .swipeActions {
+                        Button(role: .destructive) {
+                            viewModel.deleteProduct(product)
+                        } label: {
+                            Label("Delete", systemImage: "trash")
+                        }
+                    }
+                }
+                .navigationTitle("Products")
+                
+                VStack {
+                    TextField("Name", text: $newName)
+                    TextField("Description", text: $newDesc)
+                    TextField("Price", text: $newPrice)
+                    TextField("Provider", text: $newProvider)
+                    Button("Add Product") {
+                        guard let price = Double(newPrice) else { return }
+                        viewModel.addProduct(name: newName, desc: newDesc, price: price, provider: newProvider)
+                    }
+                }
+                .padding()
+            }
         }
     }
+}
 
-    func addProduct(name: String, desc: String, price: Double, provider: String) {
-        let newProduct = Product(context: context)
-        newProduct.id = UUID()
-        newProduct.name = name
-        newProduct.desc = desc
-        newProduct.price = price
-        newProduct.provider = provider
-
-        saveContext()
+struct ContentView: View {
+    var body: some View {
+        ProductListView()
     }
+}
 
-    func deleteProduct(_ product: Product) {
-        context.delete(product)
-        saveContext()
-    }
-
-    func saveContext() {
-        do {
-            try context.save()
-            fetchProducts()
-        } catch {
-            print("Error saving Core Data: \(error.localizedDescription)")
+@main
+struct YourApp: App {
+    var body: some Scene {
+        WindowGroup {
+            ContentView()
         }
     }
 }
