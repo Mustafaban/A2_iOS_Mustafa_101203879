@@ -16,4 +16,26 @@ struct PersistenceController {
             }
         }
     }
+
+    static var preview: PersistenceController = {
+        let controller = PersistenceController(inMemory: true)
+        let context = controller.container.viewContext
+
+        for i in 1...5 {
+            let product = Product(context: context)
+            product.id = UUID()
+            product.name = "Sample Product \(i)"
+            product.desc = "This is a sample description for product \(i)"
+            product.price = Double(i * 10)
+            product.provider = "Provider \(i)"
+        }
+
+        do {
+            try context.save()
+        } catch {
+            print("Failed to save preview data: \(error.localizedDescription)")
+        }
+
+        return controller
+    }()
 }
