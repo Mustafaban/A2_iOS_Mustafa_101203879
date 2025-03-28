@@ -1,21 +1,21 @@
-// Create the PersistenceController for CoreData stack
+import Foundation
 import CoreData
 
-class PersistenceController {
-    static let shared = PersistenceController()
+class ProductViewModel: ObservableObject {
+    @Published var products: [Product] = []
+    
+    private let context = PersistenceController.shared.container.viewContext
 
-    let container: NSPersistentContainer
+    init() {
+        fetchProducts()
+    }
 
-    init(inMemory: Bool = false) {
-        container = NSPersistentContainer(name: "YourAppName")
-        if inMemory {
-            container.persistentStoreDescriptions.first?.url = URL(fileURLWithPath: "/dev/null")
-        }
-        container.loadPersistentStores { storeDescription, error in
-            if let error = error {
-                fatalError("Unresolved error \(error), \(error.localizedDescription)")
-            }
+    func fetchProducts() {
+        let request: NSFetchRequest<Product> = Product.fetchRequest()
+        do {
+            products = try context.fetch(request)
+        } catch {
+            print("Failed to fetch products: \(error.localizedDescription)")
         }
     }
 }
-
