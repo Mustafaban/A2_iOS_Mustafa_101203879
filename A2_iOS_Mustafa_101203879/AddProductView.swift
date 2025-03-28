@@ -9,6 +9,7 @@ struct AddProductView: View {
     @State private var desc = ""
     @State private var price = ""
     @State private var provider = ""
+    @State private var errorMessage: String? = nil
     
     var body: some View {
         NavigationStack {
@@ -25,6 +26,14 @@ struct AddProductView: View {
                     
                     TextField("Provider", text: $provider)
                         .autocorrectionDisabled()
+                }
+                
+                if let errorMessage = errorMessage {
+                    Section {
+                        Text(errorMessage)
+                            .foregroundColor(.red)
+                            .font(.caption)
+                    }
                 }
                 
                 Section {
@@ -58,7 +67,27 @@ struct AddProductView: View {
     }
     
     private func addProduct() {
-        // This will be implemented in the next commit
+        guard validateFields() else { return }
+        
+        if let priceValue = Double(price) {
+            viewModel.addProduct(name: name, desc: desc, price: priceValue, provider: provider)
+            navigateToProductList = true
+        }
+    }
+    
+    private func validateFields() -> Bool {
+        if name.isEmpty || desc.isEmpty || price.isEmpty || provider.isEmpty {
+            errorMessage = "All fields are required."
+            return false
+        }
+        
+        if Double(price) == nil {
+            errorMessage = "Price must be a valid number."
+            return false
+        }
+        
+        errorMessage = nil
+        return true
     }
 }
 
