@@ -1,39 +1,32 @@
 import SwiftUI
 
-struct ProductListView: View {
-    @StateObject var viewModel = ProductViewModel()
-    @State private var searchText = ""
-    
-    var filteredProducts: [Product] {
-        viewModel.products.filter { product in
-            searchText.isEmpty ||
-            (product.name?.localizedCaseInsensitiveContains(searchText) == true) ||
-            (product.desc?.localizedCaseInsensitiveContains(searchText) == true)
-        }
-    }
+struct ProductRowView: View {
+    let product: Product
     
     var body: some View {
-        NavigationStack {
-            List {
-                SearchBar(text: $searchText)
-                    .listRowSeparator(.hidden)
-                
-                if filteredProducts.isEmpty {
-                    ContentUnavailableView("No Products", systemImage: "tray", description: Text("Your product list is empty"))
-                } else {
-                    ForEach(filteredProducts, id: \.id) { product in
-                        ProductRowView(product: product)
-                            .listRowSeparator(.hidden)
-                    }
+        NavigationLink(destination: ProductDetailView(product: product)) {
+            HStack {
+                VStack(alignment: .leading, spacing: 6) {
+                    Text(product.name ?? "Unknown Product")
+                        .font(.headline)
+                        .foregroundColor(.primary)
+                    
+                    Text(product.desc ?? "No description")
+                        .font(.subheadline)
+                        .foregroundColor(.secondary)
                 }
+                
+                Spacer()
+                
+                Image(systemName: "chevron.right")
+                    .foregroundColor(.gray)
             }
-            .listStyle(PlainListStyle())
-            .background(Color(.systemGroupedBackground))
-            .navigationTitle("Product Catalog")
-            .onAppear {
-                viewModel.fetchProducts()
-            }
+            .padding()
+            .background(
+                RoundedRectangle(cornerRadius: 12)
+                    .fill(Color.white)
+                    .shadow(color: .black.opacity(0.1), radius: 4, x: 0, y: 2)
+            )
         }
     }
 }
-
